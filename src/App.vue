@@ -2,6 +2,8 @@
 import SubTitle from './components/SubTitle.vue';
 import { ref } from 'vue'
 
+const showResult = ref(false)
+
 const numberOfLoaner = ref('1')
 const numberOfChildren = ref('1')
 const monthlyWage = ref('')
@@ -13,7 +15,24 @@ const currentDebt = ref('')
 const currentRent = ref('')
 const otherExpense = ref('')
 
+const moneyToLive = ref('')
+const moneyLeft = ref('')
+const debtRate = ref('')
+
+const contribution = ref('')
+const maxLoanCapacity = ref('')
+
+const resetResult = () => {
+  if (showResult.value === true) {
+    showResult.value = !showResult.value
+  }
+}
+
 const getMaxLoan = () => {
+  if (showResult.value === false) {
+    showResult.value = !showResult.value
+  }
+
   // Calculate the total income
   const totalIncome = Math.round(Number(monthlyWage.value) + (Number(annualBonus.value) / 12) + (Number(rentalIncome.value) * 0.7) + Number(otherIncome.value))
 
@@ -31,17 +50,20 @@ const getMaxLoan = () => {
   const maxDebtRate = 35 / 100
 
   // Maximum monthly loan amount
-  const moneyLeft = Math.round((totalIncome * maxDebtRate) - totalExpense)
-  const loanInsurance = (moneyLeft * insuranceRate) / 2
-  const maxMonthlyLoan = Math.round(moneyLeft + loanInsurance)
+  moneyToLive.value = Math.round(totalIncome - totalExpense)
+  moneyLeft.value = Math.round((totalIncome * maxDebtRate) - totalExpense)
+  debtRate.value = Math.round((totalExpense / totalIncome) * 100)
+
+  const loanInsurance = (Number(moneyLeft.value) * insuranceRate) / 2
+  const maxMonthlyLoan = Math.round(Number(moneyLeft.value) + loanInsurance)
 
   const maxMonthlyLoanWithLoanRate = maxMonthlyLoan * loanRate
   const trueMoneyLeftAfterAllRate = maxMonthlyLoan - maxMonthlyLoanWithLoanRate
 
-  const maxLoanCapacity = Math.round(trueMoneyLeftAfterAllRate * loanDuration)
+  maxLoanCapacity.value = Math.round(trueMoneyLeftAfterAllRate * loanDuration)
 
   // My contribution
-  const contribution = Math.round(maxLoanCapacity * 0.1)
+  contribution.value = Math.round(Number(maxLoanCapacity.value) * 0.1)
 
 }
 </script>
@@ -179,7 +201,7 @@ const getMaxLoan = () => {
       <!-- Submit form -->
 
       <div class="flex items-center justify-end gap-x-3">
-        <button type="reset"
+        <button type="reset" @click="resetResult"
           class="text-sm font-semibold leading-6 text-gray-900 px-3 py-2 rounded-md bg-neutral-100">Annuler</button>
         <button type="submit" @click.prevent="getMaxLoan"
           class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Calculer</button>
@@ -187,33 +209,33 @@ const getMaxLoan = () => {
 
     </form>
 
-    <div
-      class="hidden grid grid-cols-1 gap-x-3 gap-y-6 sm:col-span-2 md:grid-cols-2 lg:grid-cols-3 bg-blue-100 px-6 py-6 rounded-md">
+    <div v-if="showResult"
+      class="grid grid-cols-1 gap-x-3 gap-y-6 sm:col-span-2 md:grid-cols-2 lg:grid-cols-3 bg-blue-100 px-6 py-6 rounded-md">
 
       <div class="lg:border-r-2 lg:border-gray-400 px-4">
-        <p class="block text-sm font-medium leading-6 text-gray-900 font-bold">Taux d'endettement</p>
-        <p class="font-normal">30%</p>
+        <p class="block text-sm leading-6 text-gray-900 font-bold">Taux d'endettement</p>
+        <p class="font-normal">{{ debtRate }} %</p>
       </div>
 
       <div class="lg:border-r-2 lg:border-gray-400 px-4">
-        <p class="block text-sm font-medium leading-6 text-gray-900 font-bold">Reste à vivre
+        <p class="block text-sm leading-6 text-gray-900 font-bold">Reste à vivre
         </p>
-        <p class="font-normal">1400€</p>
+        <p class="font-normal">{{ moneyToLive }} €</p>
       </div>
 
       <div class="px-4">
-        <p class="block text-sm font-medium leading-6 text-gray-900 font-bold">Capacité de remboursement</p>
-        <p class="font-normal">474€</p>
+        <p class="block text-sm leading-6 text-gray-900 font-bold">Capacité de remboursement</p>
+        <p class="font-normal">{{ moneyLeft }} €</p>
       </div>
 
       <div class="lg:border-r-2 lg:border-gray-400 px-4">
-        <p class="block text-sm font-medium leading-6 text-gray-900 font-bold">Apport requis
+        <p class="block text-sm leading-6 text-gray-900 font-bold">Apport requis
         </p>
-        <p class="font-normal">8000€</p>
+        <p class="font-normal">{{ contribution }} €</p>
       </div>
 
       <div class="flex gap-2 items-center lg:border-r-2 lg:border-gray-400 px-4">
-        <p class="block text-sm font-medium leading-6 text-gray-900 font-bold">J'ai cet apport ?</p>
+        <p class="block text-sm leading-6 text-gray-900 font-bold">J'ai cet apport ?</p>
         <input type="radio" id="yes" name="possible-contribution" checked
           class="block border-0 py-2 px-2 text-indigo-600">
         <label for="yes" class="block text-sm font-medium leading-6 text-gray-900">Oui</label>
@@ -223,16 +245,16 @@ const getMaxLoan = () => {
       </div>
 
       <div class="px-4">
-        <p class="block text-sm font-medium leading-6 text-gray-900 font-bold">Capacité d'emprunt</p>
-        <p class="font-normal">8000€</p>
+        <p class="block text-sm leading-6 text-gray-900 font-bold">Capacité d'emprunt</p>
+        <p class="font-normal">{{ maxLoanCapacity }} €</p>
       </div>
 
       <div class="px-4">
-        <label for="loan-duration" class="block text-sm font-medium leading-6 text-gray-900 font-bold">Durée
+        <label for="loan-duration" class="block text-sm leading-6 text-gray-900 font-bold">Durée
           (ans)</label>
         <div class="mt-2">
           <select id="loan-duration" name="loan-duration"
-            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:col-span-2 lg:max-w-xs sm:col-span-2 lg:text-sm sm:col-span-2 lg:leading-6">
+            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 lg:max-w-xs lg:text-sm sm:col-span-2 lg:leading-6">
             <option value="10">10</option>
             <option value="15">15</option>
             <option value="20">20</option>
@@ -242,19 +264,19 @@ const getMaxLoan = () => {
       </div>
 
       <div class="px-4">
-        <label for="loan-rate" class="block text-sm font-medium leading-6 text-gray-900 font-bold">Taux (%)</label>
+        <label for="loan-rate" class="block text-sm leading-6 text-gray-900 font-bold">Taux (%)</label>
         <div class="mt-2">
           <input type="number" name="loan-rate" id="loan-rate"
-            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:col-span-2 lg:text-sm sm:col-span-2 lg:leading-6">
+            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 lg:text-sm sm:col-span-2 lg:leading-6">
         </div>
       </div>
 
       <div class="px-4">
-        <label for="insurance-rate" class="block text-sm font-medium leading-6 text-gray-900 font-bold">Assurance
+        <label for="insurance-rate" class="block text-sm leading-6 text-gray-900 font-bold">Assurance
           (%)</label>
         <div class="mt-2">
           <input type="number" name="insurance-rate" id="insurance-rate"
-            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:col-span-2 lg:text-sm sm:col-span-2 lg:leading-6">
+            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 lg:text-sm sm:col-span-2 lg:leading-6">
         </div>
       </div>
     </div>
