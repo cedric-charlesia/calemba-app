@@ -1,5 +1,49 @@
 <script setup>
 import SubTitle from './components/SubTitle.vue';
+import { ref } from 'vue'
+
+const numberOfLoaner = ref('1')
+const numberOfChildren = ref('1')
+const monthlyWage = ref('')
+const annualBonus = ref('')
+const rentalIncome = ref('')
+const otherIncome = ref('')
+const currentLoan = ref('')
+const currentDebt = ref('')
+const currentRent = ref('')
+const otherExpense = ref('')
+
+const getMaxLoan = () => {
+  // Calculate the total income
+  const totalIncome = Math.round(Number(monthlyWage.value) + (Number(annualBonus.value) / 12) + (Number(rentalIncome.value) * 0.7) + Number(otherIncome.value))
+
+  // Calculate the total expenses
+  const totalExpense = Math.round(Number(currentLoan.value) + Number(currentDebt.value) + Number(currentRent.value) + Number(otherExpense.value))
+
+  // Loan and insurance rates (in percentage)
+  const loanRate = 28 / 100
+  const insuranceRate = 2.5 / 100
+
+  // Loan duration (in months)
+  const loanDuration = 20 * 12
+
+  // Max Debt rate (in percentage)
+  const maxDebtRate = 35 / 100
+
+  // Maximum monthly loan amount
+  const moneyLeft = Math.round((totalIncome * maxDebtRate) - totalExpense)
+  const loanInsurance = (moneyLeft * insuranceRate) / 2
+  const maxMonthlyLoan = Math.round(moneyLeft + loanInsurance)
+
+  const maxMonthlyLoanWithLoanRate = maxMonthlyLoan * loanRate
+  const trueMoneyLeftAfterAllRate = maxMonthlyLoan - maxMonthlyLoanWithLoanRate
+
+  const maxLoanCapacity = Math.round(trueMoneyLeftAfterAllRate * loanDuration)
+
+  // My contribution
+  const contribution = Math.round(maxLoanCapacity * 0.1)
+
+}
 </script>
 
 <template>
@@ -20,11 +64,11 @@ import SubTitle from './components/SubTitle.vue';
         <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-6 lg:grid-cols-12">
 
           <div class="sm:col-span-3 lg:col-span-4">
-            <label for="number-of-loaner" class="block text-sm font-medium leading-6 text-gray-900">Nombre d'adulte(s)
+            <label for="number-of-loaner" class="block text-sm font-medium leading-6 text-gray-900">Nombre d'adulte
               (2 si couple)</label>
             <div class="mt-2">
-              <select id="number-of-loaner" name="number-of-loaner"
-                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:col-3 lg:max-w-xs sm:col-span-2 lg:text-sm sm:col-span-2 lg:leading-6">
+              <select id="number-of-loaner" name="number-of-loaner" v-model="numberOfLoaner"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:col-3 lg:max-w-xs lg:text-sm sm:col-span-2 lg:leading-6">
                 <option value="1">1</option>
                 <option value="2">2</option>
               </select>
@@ -35,8 +79,8 @@ import SubTitle from './components/SubTitle.vue';
             <label for="number-of-children" class="block text-sm font-medium leading-6 text-gray-900">Nombre d'enfant(s)
               à charge</label>
             <div class="mt-2">
-              <select id="number-of-children" name="number-of-children"
-                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:col-span-2 lg:max-w-xs sm:col-span-2 lg:text-sm sm:col-span-2 lg:leading-6">
+              <select id="number-of-children" name="number-of-children" v-model="numberOfChildren"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 lg:max-w-xs lg:text-sm sm:col-span-2 lg:leading-6">
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -57,35 +101,35 @@ import SubTitle from './components/SubTitle.vue';
 
           <div class="sm:col-span-3 lg:col-span-3 col-start-1">
             <label for="monthly-wage" class="block text-sm font-medium leading-6 text-gray-900">Salaire
-              mensuel</label>
+              mensuel (€)</label>
             <div class="mt-2">
-              <input type="number" name="monthly-wage" id="monthly-wage"
-                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:col-span-2 lg:text-sm sm:col-span-2 lg:leading-6">
+              <input type="number" name="monthly-wage" id="monthly-wage" v-model="monthlyWage"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 lg:text-sm sm:col-span-2 lg:leading-6">
             </div>
           </div>
 
           <div class="sm:col-span-3 lg:col-span-3">
-            <label for="annual-bonus" class="block text-sm font-medium leading-6 text-gray-900">Prime annuelle</label>
+            <label for="annual-bonus" class="block text-sm font-medium leading-6 text-gray-900">Prime annuelle (€)</label>
             <div class="mt-2">
-              <input type="number" name="annual-bonus" id="annual-bonus"
+              <input type="number" name="annual-bonus" id="annual-bonus" v-model="annualBonus"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:col-span-2 lg:text-sm sm:col-span-2 lg:leading-6">
             </div>
           </div>
 
           <div class="sm:col-span-3 lg:col-span-3">
             <label for="rental-income" class="block text-sm font-medium leading-6 text-gray-900">Revenus locatifs
-              mensuels</label>
+              mensuels (€)</label>
             <div class="mt-2">
-              <input type="number" name="rental-income" id="rental-income"
+              <input type="number" name="rental-income" id="rental-income" v-model="rentalIncome"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:col-span-2 lg:text-sm sm:col-span-2 lg:leading-6">
             </div>
           </div>
 
           <div class="sm:col-span-3 lg:col-span-3">
             <label for="other-income" class="block text-sm font-medium leading-6 text-gray-900">Autres revenus
-              mensuels</label>
+              mensuels (€)</label>
             <div class="mt-2">
-              <input type="number" name="other-income" id="other-income"
+              <input type="number" name="other-income" id="other-income" v-model="otherIncome"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:col-span-2 lg:text-sm sm:col-span-2 lg:leading-6">
             </div>
           </div>
@@ -96,36 +140,36 @@ import SubTitle from './components/SubTitle.vue';
 
           <div class="sm:col-span-3 lg:col-span-3 lg:col-start-1">
             <label for="current-loan" class="block text-sm font-medium leading-6 text-gray-900">Crédit immo.
-              mensuel</label>
+              mensuel (€)</label>
             <div class="mt-2">
-              <input type="number" name="current-loan" id="current-loan"
-                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:col-span-2 lg:text-sm sm:col-span-2 lg:leading-6">
+              <input type="number" name="current-loan" id="current-loan" v-model="currentLoan"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 lg:text-sm sm:col-span-2 lg:leading-6">
             </div>
           </div>
 
           <div class="sm:col-span-3 lg:col-span-3">
             <label for="current-debt" class="block text-sm font-medium leading-6 text-gray-900">Autre crédit
-              mensuel</label>
+              mensuel (€)</label>
             <div class="mt-2">
-              <input type="number" name="current-debt" id="current-debt"
-                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:col-span-2 lg:text-sm sm:col-span-2 lg:leading-6">
+              <input type="number" name="current-debt" id="current-debt" v-model="currentDebt"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 lg:text-sm sm:col-span-2 lg:leading-6">
             </div>
           </div>
 
           <div class="sm:col-span-3 lg:col-span-3">
-            <label for="rent" class="block text-sm font-medium leading-6 text-gray-900">Loyer</label>
+            <label for="rent" class="block text-sm font-medium leading-6 text-gray-900">Loyer mensuel (€)</label>
             <div class="mt-2">
-              <input type="number" name="rent" id="rent"
-                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:col-span-2 lg:text-sm sm:col-span-2 lg:leading-6">
+              <input type="number" name="rent" id="rent" v-model="currentRent"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 lg:text-sm sm:col-span-2 lg:leading-6">
             </div>
           </div>
 
           <div class="sm:col-span-3 lg:col-span-3">
             <label for="other-expense" class="block text-sm font-medium leading-6 text-gray-900">Autres charges
-              mensuelles</label>
+              mensuelles (€)</label>
             <div class="mt-2">
-              <input type="number" name="other-expense" id="other-expense"
-                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:col-span-2 lg:text-sm sm:col-span-2 lg:leading-6">
+              <input type="number" name="other-expense" id="other-expense" v-model="otherExpense"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 lg:text-sm sm:col-span-2 lg:leading-6">
             </div>
           </div>
 
@@ -137,7 +181,7 @@ import SubTitle from './components/SubTitle.vue';
       <div class="flex items-center justify-end gap-x-3">
         <button type="reset"
           class="text-sm font-semibold leading-6 text-gray-900 px-3 py-2 rounded-md bg-neutral-100">Annuler</button>
-        <button type="submit"
+        <button type="submit" @click.prevent="getMaxLoan"
           class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Calculer</button>
       </div>
 
