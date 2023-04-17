@@ -1,7 +1,17 @@
-# Vue 3 + Vite
+# Calemba, calculateur de prêt immobilier
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+[Voir le projet en live](https://calemba.cedriccharlesia.com/)
 
-## Recommended IDE Setup
+Calemba est une application web qui a pour objectif d'estimer la capacité maximale d'emprunt immobilier.
+L'utilisateur remplit les différents champs, et l'algorithme de Calemba estime automatiquement sa capacité maximale pour un prêt immobilier.
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+## Lancer le projet en local
+**`npm install`** puis **`npm run dev`**
+
+## Lancer le projet en production
+**`npm run build`**
+
+## Outils et technologies utilisés
+
+* Vite pour le serveur local
+* Tailwind CSS
